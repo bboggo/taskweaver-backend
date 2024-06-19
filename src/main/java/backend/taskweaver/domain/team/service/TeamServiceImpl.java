@@ -90,11 +90,16 @@ public class TeamServiceImpl implements TeamService{
         Team existingTeam = teamRepository.findById(teamId)
                 .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.TEAM_NOT_FOUND));
 
+
+        // 로그인한 유저가 팀의 소유자인지 확인
         if (!existingTeam.getTeamLeader().equals(user)) {
-            throw new BusinessExceptionHandler(ErrorCode.TEAM_NOT_FOUND);
+            throw new BusinessExceptionHandler(ErrorCode.TEAM_MEMBER_NOT_FOUND);
         }
 
-        teamRepository.delete(existingTeam);
+        // 소프트 삭제
+        existingTeam.setActivated(false);
+
+        teamRepository.save(existingTeam);
 
         return TeamConverter.toDeleteResponse(existingTeam);
     }

@@ -36,6 +36,9 @@ public class Team extends BaseEntity {
 
     private Long teamLeader;
 
+    @Column(nullable = false, length = 20)
+    private boolean activated = true; // 소프트 삭제 플래그 추가
+
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TeamMember> teamMembers = new HashSet<>();
 }
