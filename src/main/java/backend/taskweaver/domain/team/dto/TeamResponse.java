@@ -89,6 +89,23 @@ public class TeamResponse {
         List<Long> memberId;
     }
 
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class TeamDeleteResult {
+        @Schema(description = "팀 id", example = "1")
+        Long id;
+
+        @Schema(description = "팀 이름", example = "팀 이름")
+        String name;
+
+        @Schema(description = "팀 리더 id", example = "1")
+        Long teamLeader;
+    }
+
+
     @Builder
     @Getter
     @NoArgsConstructor

@@ -1,7 +1,6 @@
 package backend.taskweaver.domain.team.controller;
 
 import backend.taskweaver.domain.team.dto.TeamInviteRequest;
-import backend.taskweaver.domain.team.dto.TeamLeaderRequest;
 import backend.taskweaver.domain.team.dto.TeamRequest;
 import backend.taskweaver.domain.team.service.TeamService;
 import backend.taskweaver.global.code.ApiResponse;
@@ -10,7 +9,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +36,22 @@ public class TeamController {
                     .resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
                     .build();
             return ResponseEntity.status(HttpStatus.CREATED).body(apiResponse);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // 팀 삭제
+    @Operation(summary = "팀 삭제")
+    @DeleteMapping("/team/{teamId}")
+    public ResponseEntity<ApiResponse> deleteTeam(@PathVariable(name = "teamId") Long teamId, @AuthenticationPrincipal User user) {
+        try {
+            ApiResponse apiResponse = ApiResponse.builder()
+                    .result(teamService.deleteTeam(teamId, Long.parseLong(user.getUsername())))
+                    .resultCode(SuccessCode.DELETE_SUCCESS.getStatus())
+                    .resultMsg(SuccessCode.DELETE_SUCCESS.getMessage())
+                    .build();
+            return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -81,7 +95,7 @@ public class TeamController {
 
     @Operation(summary =  "팀원 삭제")
     @PostMapping("/team/{teamId}/delete")
-    public ResponseEntity<ApiResponse> deleteTeamMembers(@PathVariable Long teamId, @RequestBody TeamRequest.teamDeleteRequest request, @AuthenticationPrincipal User user) {
+    public ResponseEntity<ApiResponse> deleteTeamMembers(@PathVariable Long teamId, @RequestBody TeamRequest.teamMemberDeleteRequest request, @AuthenticationPrincipal User user) {
         teamService.deleteTeamMembers(teamId, request.getMemberId(), Long.parseLong(user.getUsername())); // deleteTeamMembers 메서드 직접 호출
         ApiResponse apiResponse = ApiResponse.builder()
                 .resultCode(SuccessCode.DELETE_SUCCESS.getStatus())

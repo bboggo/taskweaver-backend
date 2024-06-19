@@ -34,6 +34,14 @@ public class TeamConverter {
         );
     }
 
+    public static TeamResponse.TeamDeleteResult toDeleteResponse(Team team) {
+        return new TeamResponse.TeamDeleteResult(
+                team.getId(),
+                team.getName(),
+                team.getTeamLeader()
+        );
+    }
+
     public static TeamInviteResponse.InviteAnswerResult toInviteResponse(TeamMember teamMember) {
         return new TeamInviteResponse.InviteAnswerResult(
                 teamMember.getId(),
