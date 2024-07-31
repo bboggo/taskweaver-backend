@@ -19,6 +19,10 @@ public record SignUpRequest(
         @Schema(description = "회원 닉네임", example = "코난")
         @NotNull
         @Pattern(regexp = "^[a-zA-Z0-9가-힣]*$", message = " 닉네임은 영문, 숫자, 한글만 허용됩니다.")
-        String nickname
+        String nickname,
+
+        @Schema(description = "회원 로그인 타입", example = "DEFAULT")
+        @NotNull
+        String loginType
 ) {
 }

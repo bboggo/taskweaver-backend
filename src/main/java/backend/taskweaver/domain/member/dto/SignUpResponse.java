@@ -9,10 +9,9 @@ public record SignUpResponse(
         String email,
         @Schema(description = "회원 닉네임", example = "코난")
         String nickname,
-
+        @Schema(description = "회원 로그인 타입", example = "DEFAULT")
+        String loginType,
         @Schema(description = "회원 이미지 url", example = "https://taskweaver-bucket.s3.ap-northeast-2.amazonaws.com/pen.png")
         String imageUrl
-
 ) {
-
 }

@@ -34,7 +34,6 @@ public class SignController {
 
     public ResponseEntity<ApiResponse> signUp(@RequestPart("request") @Valid SignUpRequest reqeust,
                                               @RequestPart("profileImage") MultipartFile profileImage) {
-
         ApiResponse ar = ApiResponse.builder()
                 .result(signService.registerMember(reqeust, profileImage))
                 .resultCode(SuccessCode.INSERT_SUCCESS.getStatus())
