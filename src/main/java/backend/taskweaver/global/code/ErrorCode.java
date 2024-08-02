@@ -69,6 +69,9 @@ public enum ErrorCode {
     // 토큰이 없을 때 발생
     TOKEN_MISSING_ERROR(401, "G018", "Token is missing."),
 
+    // 이미 로그아웃된 회원의 토큰일 때
+    MEMBER_LOGGED_OUT(401, "G019", "User has already logged out."),
+
     /**
      * ******************************* Custom Error CodeList ***************************************
      */

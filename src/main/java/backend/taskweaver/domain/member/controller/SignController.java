@@ -7,6 +7,7 @@ import backend.taskweaver.domain.member.entity.oauth.OauthToken;
 import backend.taskweaver.domain.member.service.SignService;
 import backend.taskweaver.global.code.ApiResponse;
 import backend.taskweaver.global.code.SuccessCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,7 +50,7 @@ public class SignController {
 
     @Operation(summary = "로그인")
     @PostMapping("/v1/auth/sign-in")
-    public ResponseEntity<ApiResponse> signIn(@RequestBody SignInRequest request) {
+    public ResponseEntity<ApiResponse> signIn(@RequestBody SignInRequest request) throws JsonProcessingException {
         ApiResponse ar = ApiResponse.builder()
                 .result(signService.signIn(request))
                 .resultCode(SuccessCode.SELECT_SUCCESS.getStatus())

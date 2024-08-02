@@ -1,39 +1,25 @@
 package backend.taskweaver.domain.member.service;
 
 
+import backend.taskweaver.domain.files.service.S3Service;
 import backend.taskweaver.domain.member.dto.*;
 import backend.taskweaver.domain.member.entity.Member;
 import backend.taskweaver.domain.member.entity.MemberRefreshToken;
+import backend.taskweaver.global.redis.UserTokens;
 import backend.taskweaver.domain.member.entity.oauth.KakaoProfile;
 import backend.taskweaver.domain.member.entity.oauth.OauthToken;
-
-import backend.taskweaver.domain.files.service.S3Service;
-import backend.taskweaver.domain.member.dto.SignInRequest;
-import backend.taskweaver.domain.member.dto.SignInResponse;
-import backend.taskweaver.domain.member.dto.SignUpRequest;
-import backend.taskweaver.domain.member.dto.SignUpResponse;
-import backend.taskweaver.domain.member.entity.Member;
-import backend.taskweaver.domain.member.entity.MemberRefreshToken;
-
 import backend.taskweaver.domain.member.repository.MemberRefreshTokenRepository;
 import backend.taskweaver.domain.member.repository.MemberRepository;
 import backend.taskweaver.global.code.ErrorCode;
 import backend.taskweaver.global.converter.MemberConverter;
 import backend.taskweaver.global.exception.handler.BusinessExceptionHandler;
+import backend.taskweaver.global.redis.RedisService;
 import backend.taskweaver.global.security.TokenProvider;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-
 import io.jsonwebtoken.io.IOException;
 import lombok.RequiredArgsConstructor;
-
-import okio.FileMetadata;
-
-
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -46,7 +32,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -55,7 +40,7 @@ public class SignService {
     private final MemberRefreshTokenRepository memberRefreshTokenRepository;
     private final PasswordEncoder encoder;
     private final TokenProvider tokenProvider;
-//    private final RedisService redisService;
+    private final RedisService redisService;
     private final S3Service s3Service;
 
     @Value("${kakaoApiKey}")
@@ -63,7 +48,6 @@ public class SignService {
 
     @Value("${kakaoRedirectUrl}")
     private String RedirectURI;
-
 
     // 회원가입
     @Transactional
@@ -94,25 +78,21 @@ public class SignService {
         }
     }
 
-
-
-
-
-    //@Transactional(readOnly = true)
     @Transactional
-    public SignInResponse signIn(SignInRequest request) {
+    public SignInResponse signIn(SignInRequest request) throws JsonProcessingException {
         Member member = memberRepository.findByEmail(request.email())
                 .filter(it -> encoder.matches(request.password(), it.getPassword()))
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
-        String accessToken = tokenProvider.createAccessToken(String.format("%s:%s", member.getId(), member.getLoginType()));	// token -> accessToken
-        String refreshToken = tokenProvider.createRefreshToken();	// 리프레시 토큰 생성
+        String accessToken = tokenProvider.createAccessToken(String.format("%s:%s", member.getId(), member.getLoginType()));    // token -> accessToken
+        String refreshToken = tokenProvider.createRefreshToken();    // 리프레시 토큰 생성
         // 리프레시 토큰이 이미 있으면 토큰을 갱신하고 없으면 토큰을 추가
         memberRefreshTokenRepository.findById(member.getId())
                 .ifPresentOrElse(
                         it -> it.updateRefreshToken(refreshToken),
                         () -> memberRefreshTokenRepository.save(new MemberRefreshToken(member, refreshToken))
                 );
-       // redisService.setValues(request.email(), request.deviceToken());
+        UserTokens userTokens = new UserTokens(accessToken, request.deviceToken());
+        redisService.setTokenValues(request.email(), userTokens);
         return MemberConverter.toSignInResponse(member, accessToken, refreshToken);
     }
 
@@ -183,6 +163,6 @@ public class SignService {
     public void logout(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.MEMBER_NOT_FOUND));
-       // redisService.deleteValues(member.getEmail());
+        redisService.deleteValues(member.getEmail());
     }
 }
