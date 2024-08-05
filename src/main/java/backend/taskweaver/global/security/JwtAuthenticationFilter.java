@@ -1,6 +1,9 @@
 package backend.taskweaver.global.security;
 
+import backend.taskweaver.domain.member.entity.Member;
+import backend.taskweaver.domain.member.repository.MemberRepository;
 import backend.taskweaver.global.code.ErrorCode;
+import backend.taskweaver.global.exception.handler.BusinessExceptionHandler;
 import backend.taskweaver.global.exception.handler.JwtTokenException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -13,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,13 +39,22 @@ import java.util.Optional;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
+    private final MemberRepository memberRepository;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            String accessToken = parseBearerToken(request, HttpHeaders.AUTHORIZATION);	// parseBearerToken() 변경에 따른 수정
-            System.out.println("doFilterInternal accessToken : " + accessToken);
+            String accessToken = parseBearerToken(request, HttpHeaders.AUTHORIZATION);    // parseBearerToken() 변경에 따른 수정
             User user = parseUserSpecification(accessToken);
+            Member member = memberRepository.findById(Long.valueOf(user.getUsername()))
+                    .orElseThrow(()-> new BusinessExceptionHandler(ErrorCode.MEMBER_NOT_FOUND));
+
+            // 로그아웃된 회원일 때
+            if (!redisTemplate.hasKey(member.getEmail())) {
+                throw new BusinessExceptionHandler(ErrorCode.MEMBER_LOGGED_OUT);
+            }
+
             AbstractAuthenticationToken authenticated = UsernamePasswordAuthenticationToken.authenticated(user, accessToken, user.getAuthorities());
             authenticated.setDetails(new WebAuthenticationDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authenticated);
@@ -53,8 +66,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             request.setAttribute("exception", ErrorCode.UNSUPPORTED_JWT_TOKEN.getMessage());
         } catch (AuthenticationException | NullPointerException e) {
             request.setAttribute("exception", ErrorCode.USER_AUTH_ERROR.getMessage());
-        } catch (JwtTokenException e) {
-            request.setAttribute("exception", ErrorCode.TOKEN_MISSING_ERROR.getMessage());
+//        } catch (JwtTokenException e) {
+//            request.setAttribute("exception", ErrorCode.TOKEN_MISSING_ERROR.getMessage());
+        } catch (BusinessExceptionHandler e) {
+            request.setAttribute("exception", e.getErrorCode().getMessage());
         }
 
         filterChain.doFilter(request, response);
@@ -71,7 +86,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String[] split = Optional.ofNullable(token)
                 .filter(subject -> subject.length() >= 10)
                 .map(tokenProvider::validateTokenAndGetSubject)
-                .orElseThrow(()->new JwtTokenException(ErrorCode.TOKEN_MISSING_ERROR))
+//                .orElseThrow(() -> new JwtTokenException(ErrorCode.TOKEN_MISSING_ERROR))
+                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.TOKEN_MISSING_ERROR))
                 .split(":");
         System.out.println(split[0]);
         System.out.println(split[1]);

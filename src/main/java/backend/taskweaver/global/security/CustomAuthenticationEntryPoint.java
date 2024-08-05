@@ -31,6 +31,10 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             setResponse(response, ErrorCode.USER_AUTH_ERROR);
         } else if(exception.equals(ErrorCode.TOKEN_MISSING_ERROR.getMessage())) {
             setResponse(response, ErrorCode.TOKEN_MISSING_ERROR);
+        } else if(exception.equals(ErrorCode.MEMBER_LOGGED_OUT.getMessage())) {
+            setResponse(response, ErrorCode.MEMBER_LOGGED_OUT);
+        } else if (exception.equals(ErrorCode.MEMBER_NOT_FOUND.getMessage())) {
+            setResponse(response, ErrorCode.MEMBER_NOT_FOUND);
         }
     }
 
