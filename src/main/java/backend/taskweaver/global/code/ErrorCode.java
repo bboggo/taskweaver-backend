@@ -120,6 +120,7 @@ public enum ErrorCode {
     CANNOT_WITHDRAW_PROJECT_LEADER(400, "M006", "You cannot withdraw because you are the project leader."),
     PROFILE_IMAGE_UPLOAD_FAILED(400, "M007", "Profile Image upload failed"),
     LOGIN_TYPE_NOT_FOUND(400, "M008", "Login Type Not Found"),
+    DUPLICATED_NICKNAME(409, "M009", "Nickname is duplicated."),
 
 
     // COMENT

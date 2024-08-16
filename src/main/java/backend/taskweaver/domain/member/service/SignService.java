@@ -64,6 +64,11 @@ public class SignService {
                 imageUrl = s3Service.saveProfileImage(profileImage);
             }
 
+            // 닉네임 중복 확인
+            if(memberRepository.findByNickname(request.nickname()).isPresent()) {
+                throw new BusinessExceptionHandler(ErrorCode.DUPLICATED_NICKNAME);
+            }
+
             // 회원 정보 저장
             Member member = MemberConverter.toMember(request, encoder, imageUrl);
             member = memberRepository.saveAndFlush(member);
