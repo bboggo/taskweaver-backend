@@ -7,6 +7,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -25,8 +27,10 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 @Slf4j
 @RestControllerAdvice
@@ -35,7 +39,29 @@ public class GlobalExceptionHandler {
     private final HttpStatus HTTP_STATUS_OK = HttpStatus.OK;
 
     /**
-     * [Exception] API 호출 시 '객체' 혹은 '파라미터' 데이터 값이 유효하지 않은 경우
+     * [Exception] API 호출 시 @RequestParam, @PathVariable의 유효성 검사(Validation)에 실패할 때
+     *
+     * @param ex ConstraintViolationException
+     * @return ResponseEntity<ErrorResponse>
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex) {
+        log.error("handleConstraintViolationException", ex);
+        StringBuilder stringBuilder = new StringBuilder();
+        Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
+        for (ConstraintViolation<?> violation : violations) {
+            stringBuilder.append(violation.getInvalidValue()).append(": ");
+            stringBuilder.append(violation.getMessage());
+            if(violations.size() != 1) {
+                stringBuilder.append(", ");
+            }
+        }
+        final ErrorResponse response = ErrorResponse.of(ErrorCode.NOT_VALID_ERROR, String.valueOf(stringBuilder));
+        return new ResponseEntity<>(response, HttpStatusCode.valueOf(ErrorCode.NOT_VALID_ERROR.getStatus()));
+    }
+
+    /**
+     * [Exception] API 호출 시 @RequestBody의 유효성 검사(Validation)에 실패할 때
      *
      * @param ex MethodArgumentNotValidException
      * @return ResponseEntity<ErrorResponse>
