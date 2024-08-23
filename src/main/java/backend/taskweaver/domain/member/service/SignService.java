@@ -159,10 +159,17 @@ public class SignService {
         return kakaoProfile;
     }
 
-
+    @Transactional(readOnly = true)
     public void logout(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.MEMBER_NOT_FOUND));
         redisService.deleteValues(member.getEmail());
+    }
+
+    @Transactional(readOnly = true)
+    public void checkNickname(String nickname) {
+        if(memberRepository.findByNickname(nickname).isPresent()) {
+            throw new BusinessExceptionHandler(ErrorCode.DUPLICATED_NICKNAME);
+        }
     }
 }

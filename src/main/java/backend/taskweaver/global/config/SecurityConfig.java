@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final String[] allowedUrls = {"/", "/swagger-ui/**", "/v3/**", "/v1/auth/sign-up", "/v1/auth/sign-in", "/v1/user/token", "/v1/user/email"};
+    private final String[] allowedUrls = {"/", "/swagger-ui/**", "/v3/**", "/v1/auth/sign-up", "/v1/auth/sign-in", "/v1/user/token", "/v1/user/email", "/v1/auth/{nickname}"};
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http

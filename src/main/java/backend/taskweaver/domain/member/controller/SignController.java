@@ -2,28 +2,24 @@ package backend.taskweaver.domain.member.controller;
 
 import backend.taskweaver.domain.member.dto.SignInRequest;
 import backend.taskweaver.domain.member.dto.SignUpRequest;
-import backend.taskweaver.domain.member.entity.oauth.KakaoProfile;
-import backend.taskweaver.domain.member.entity.oauth.OauthToken;
 import backend.taskweaver.domain.member.service.SignService;
 import backend.taskweaver.global.code.ApiResponse;
 import backend.taskweaver.global.code.SuccessCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.List;
 
 
 @Tag(name = "회원 가입 및 로그인")
@@ -31,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping
 @Slf4j
+@Validated
 public class SignController {
     private final SignService signService;
 
@@ -75,6 +72,19 @@ public class SignController {
         ApiResponse ar = ApiResponse.builder()
                 .resultCode(SuccessCode.DELETE_SUCCESS.getStatus())
                 .resultMsg(SuccessCode.DELETE_SUCCESS.getMessage())
+                .build();
+        return new ResponseEntity<>(ar, HttpStatus.OK);
+    }
+
+    @Operation(summary = "닉네임 중복 확인")
+    @GetMapping("/v1/auth/{nickname}")
+    public ResponseEntity<ApiResponse> checkNickname(@PathVariable
+                                                     @Pattern(regexp = "^[a-zA-Z0-9가-힣]*$", message = "닉네임은 영문, 숫자, 한글만 허용됩니다.")
+                                                     String nickname) {
+        signService.checkNickname(nickname);
+        ApiResponse ar = ApiResponse.builder()
+                .resultCode(SuccessCode.SELECT_SUCCESS.getStatus())
+                .resultMsg(SuccessCode.SELECT_SUCCESS.getMessage())
                 .build();
         return new ResponseEntity<>(ar, HttpStatus.OK);
     }
