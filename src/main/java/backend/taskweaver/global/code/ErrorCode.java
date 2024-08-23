@@ -46,10 +46,10 @@ public enum ErrorCode {
     NULL_POINT_ERROR(404, "G010", "Null Point Exception"),
 
     // @RequestBody 및 @RequestParam, @PathVariable 값이 유효하지 않음
-    NOT_VALID_ERROR(404, "G011", "handle Validation Exception"),
+    NOT_VALID_ERROR(400, "G011", "handle Validation Exception"),
 
     // @RequestBody 및 @RequestParam, @PathVariable 값이 유효하지 않음
-    NOT_VALID_HEADER_ERROR(404, "G012", "Header에 데이터가 존재하지 않는 경우 "),
+    NOT_VALID_HEADER_ERROR(400, "G012", "Header에 데이터가 존재하지 않는 경우 "),
 
     // 서버가 처리 할 방법을 모르는 경우 발생
     INTERNAL_SERVER_ERROR(500, "G999", "Internal Server Error Exception"),
