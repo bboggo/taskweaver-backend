@@ -29,11 +29,12 @@ public class NotificationServiceImpl implements NotificationService{
         // 로그인한 사용자의 모든 알림 조회
         List<NotificationMember> notificationMembers = notificationMemberRepository.findByMemberId(memberId);
 
-        // Member의 isRead 값을 'YES'로 업데이트
-//        memberRepository.findById(memberId).ifPresent(member -> {
-//            member.setIsRead(isRead.YES); // setIsRead 메소드를 Member 엔티티에 추가해야 함
-//            memberRepository.save(member);
-//        });
+        notificationMembers.forEach(notificationMember -> {
+            if (notificationMember.getIsRead() == isRead.NO) {
+                notificationMember.setIsRead(isRead.YES);
+                notificationMemberRepository.save(notificationMember); // 변경 사항 저장
+            }
+        });
 
         // 조회된 알림을 NotificationResponse.AllNotificationInfo 객체로 변환
         return notificationMembers.stream()
