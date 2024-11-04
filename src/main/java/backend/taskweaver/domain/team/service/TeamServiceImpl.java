@@ -315,7 +315,7 @@ public class TeamServiceImpl implements TeamService{
 
             // 초대받은 멤버에게 알림 연결
             NotificationMember notificationMember = NotificationMember.builder()
-                    .isRead(isRead.YES)
+                    .isRead(isRead.NO)
                     .member(matchingMember.get())
                     .notification(notification)
                     .build();
