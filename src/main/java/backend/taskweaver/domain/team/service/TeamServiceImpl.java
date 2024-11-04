@@ -2,6 +2,12 @@ package backend.taskweaver.domain.team.service;
 
 import backend.taskweaver.domain.member.entity.Member;
 import backend.taskweaver.domain.member.repository.MemberRepository;
+import backend.taskweaver.domain.notification.entity.Notification;
+import backend.taskweaver.domain.notification.entity.NotificationMember;
+import backend.taskweaver.domain.notification.entity.enums.NotificationType;
+import backend.taskweaver.domain.notification.entity.enums.isRead;
+import backend.taskweaver.domain.notification.repository.NotificationMemberRepository;
+import backend.taskweaver.domain.notification.repository.NotificationRepository;
 import backend.taskweaver.domain.team.dto.*;
 import backend.taskweaver.domain.team.entity.Team;
 import backend.taskweaver.domain.team.entity.TeamMember;
@@ -29,6 +35,8 @@ public class TeamServiceImpl implements TeamService{
     private final MemberRepository memberRepository;
     private final TeamMemberStateRepository teamMemberStateRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final NotificationRepository notificationRepository;
+    private final NotificationMemberRepository notificationMemberRepository;
 
     // 팀 생성
     // 우선 팀 생성자 필드로만 추가
@@ -294,6 +302,25 @@ public class TeamServiceImpl implements TeamService{
                             .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.TEAM_NOT_FOUND)))
                     .build();
             teamMemberStateRepository.save(teamMemberState);
+
+
+            // 알림 생성 및 저장
+            Notification notification = Notification.builder()
+                    .sender(team.getTeamLeader().toString()) // 팀 리더의 이름이나 아이디를 문자열로 변환하여 보냄
+                    .content("팀 초대가 도착했습니다.") // 알림 내용
+                    .type(NotificationType.TEAM)
+                    .relatedTypeId(teamId) // 초대와 관련된 팀의 ID
+                    .build();
+            notificationRepository.save(notification);
+
+            // 초대받은 멤버에게 알림 연결
+            NotificationMember notificationMember = NotificationMember.builder()
+                    .isRead(isRead.YES)
+                    .member(matchingMember.get())
+                    .notification(notification)
+                    .build();
+
+            notificationMemberRepository.save(notificationMember);
         } else {
             throw new BusinessExceptionHandler(ErrorCode.TEAM_MEMBER_NOT_FOUND);
         }

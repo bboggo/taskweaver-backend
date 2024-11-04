@@ -74,7 +74,7 @@ public class TeamConverter {
                 team.getName(),
 //                team.getDescription(),
 //                team.getTeamLeader(),
-                team.getInviteLink(),
+                team.getDescription(),
                 team.getCreatedAt(),
                 myRole,
                 totalMembers,
