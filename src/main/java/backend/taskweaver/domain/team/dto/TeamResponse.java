@@ -144,6 +144,8 @@ public class TeamResponse {
         private Long id;
         @Schema(description = "프로필 사진 url", example = "domain 주소")
         private String imageUrl;
+        @Schema(description = "닉네임", example = "user123")
+        private String nickname;
     }
 
     @Getter
