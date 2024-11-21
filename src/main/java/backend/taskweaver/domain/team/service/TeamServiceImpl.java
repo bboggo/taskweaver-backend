@@ -165,7 +165,7 @@ public class TeamServiceImpl implements TeamService{
 
                     // 유일한 멤버 정보를 MemberInfo 객체로 매핑
                     List<TeamResponse.MemberInfo> members = filteredMembers.stream()
-                            .map(member -> new TeamResponse.MemberInfo(member.getMember().getId(), member.getMember().getImageUrl()))
+                            .map(member -> new TeamResponse.MemberInfo(member.getMember().getId(), member.getMember().getImageUrl(), member.getMember().getNickname()))
                             .collect(Collectors.toList());
 
                     // 전체 인원수 계산

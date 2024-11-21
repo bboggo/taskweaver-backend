@@ -7,6 +7,7 @@ import backend.taskweaver.domain.notification.entity.NotificationMember;
 import backend.taskweaver.domain.notification.entity.enums.isRead;
 import backend.taskweaver.domain.notification.repository.NotificationMemberRepository;
 import backend.taskweaver.domain.notification.repository.NotificationRepository;
+import backend.taskweaver.domain.team.repository.TeamRepository;
 import backend.taskweaver.global.converter.NotificationConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ public class NotificationServiceImpl implements NotificationService{
     private final NotificationMemberRepository notificationMemberRepository;
     private final NotificationRepository notificationRepository;
     private final MemberRepository memberRepository; // MemberRepository 추가
+    private final TeamRepository teamRepository; // TeamRepository 추가
+
     public List<NotificationResponse.AllNotificationInfo> getAllNotificationsForUser(Long memberId) {
         // 로그인한 사용자의 모든 알림 조회
         List<NotificationMember> notificationMembers = notificationMemberRepository.findByMemberId(memberId);
@@ -38,7 +41,10 @@ public class NotificationServiceImpl implements NotificationService{
 
         // 조회된 알림을 NotificationResponse.AllNotificationInfo 객체로 변환
         return notificationMembers.stream()
-                .map(notificationMember -> NotificationConverter.toGetAllNotificationResponse(notificationMember.getNotification(), notificationMember))
+                .map(notificationMember -> NotificationConverter.toGetAllNotificationResponse(
+                        notificationMember.getNotification(),
+                        notificationMember,
+                        teamRepository)) // teamRepository 전달
                 .collect(Collectors.toList());
     }
 
