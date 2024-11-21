@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 public class NotificationResponse {
 
     @Builder
@@ -29,12 +31,18 @@ public class NotificationResponse {
         @Schema(description = "관련된 팀, 프로젝트, 태스크 id", example = "1")
         Long relatedTypeId;
 
+        @Schema(description = "팀 제목", example = "백엔드 개발팀")
+        private String relatedTeamTitle; // 팀 제목 추가
+
         @Schema(description = "조회 여부", example = "YES")
         private String isRead; // is_read 필드 추가
 
         // 추가된 필드들
         @Schema(description = "로그인한 멤버 id", example = "1")
         private Long memberId;
+
+        @Schema(description = "생성 날짜", example = "2024-02-08T22:58:10.061223")
+        LocalDateTime createdAt;
     }
 
     
