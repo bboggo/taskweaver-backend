@@ -1,6 +1,7 @@
 package backend.taskweaver.domain.team.dto;
 
 import backend.taskweaver.domain.team.entity.TeamMember;
+import backend.taskweaver.domain.team.entity.enums.TeamRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -146,6 +147,8 @@ public class TeamResponse {
         private String imageUrl;
         @Schema(description = "닉네임", example = "user123")
         private String nickname;
+        @Schema(description = "역할", example = "LEADER")
+        private TeamRole role;
     }
 
     @Getter
