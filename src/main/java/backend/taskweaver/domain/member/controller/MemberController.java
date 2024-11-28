@@ -70,6 +70,17 @@ public class MemberController {
         return new ResponseEntity<>(ar, HttpStatus.OK);
     }
 
+    @Operation(summary = "비밀번호 찾기 api", description = "임시 비밀번호를 발급하는 api입니다.")
+    @PostMapping("/password")
+    public ResponseEntity<ApiResponse> updatePassword(@RequestBody @Valid EmailRequest request) {
+        memberService.findPassword(request);
+        ApiResponse ar = ApiResponse.builder()
+                .resultCode(SuccessCode.UPDATE_SUCCESS.getStatus())
+                .resultMsg(SuccessCode.UPDATE_SUCCESS.getMessage())
+                .build();
+        return new ResponseEntity<>(ar, HttpStatus.OK);
+    }
+
 
     @Operation(summary = "인증번호 발송 api", description = "인증번호 이메일 발송 api 입니다.")
     @PostMapping("/email")

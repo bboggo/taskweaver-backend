@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -38,6 +39,7 @@ public class MemberService {
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
     private final TaskMemberRepository taskMemberRepository;
+    private final EmailService emailService;
 
 
     @Transactional(readOnly = true)
@@ -87,6 +89,31 @@ public class MemberService {
         member.updatePassword(encoder.encode(request.newPassword()));
     }
 
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!?@#$%^&*";
+    private static final int PASSWORD_LENGTH = 8; // 원하는 비밀번호 길이
+
+    public static String generateTemporaryPassword() {
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder(PASSWORD_LENGTH);
+
+        for (int i = 0; i < PASSWORD_LENGTH; i++) {
+            int index = random.nextInt(CHARACTERS.length());
+            password.append(CHARACTERS.charAt(index));
+        }
+
+        return "TEMP-" + password.toString();
+    }
+    @Transactional
+    public void findPassword(EmailRequest emailRequest) {
+        //임시 비밀번호 생성
+        String tempPassword = generateTemporaryPassword();
+        Member member = memberRepository.findByEmail(emailRequest.email())
+                .orElseThrow(() -> new BusinessExceptionHandler(ErrorCode.MEMBER_NOT_FOUND));
+
+        member.updatePassword(encoder.encode(tempPassword));
+        emailService.sendMailForPassword(emailRequest, tempPassword);
+    }
+
     @Transactional
     public void delete(Long memberId) {
         Member member = memberRepository.findById(memberId)
@@ -124,13 +151,6 @@ public class MemberService {
 
         // 회원 탈퇴하기
         member.deleteSoftly();
-    }
-
-    public boolean checkDuplication(String email) {
-        if (memberRepository.findByEmail(email).isPresent()) {
-            throw new BusinessExceptionHandler(ErrorCode.DUPLICATED_EMAIL);
-        }
-        return true;
     }
 
 }

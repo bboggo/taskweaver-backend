@@ -121,6 +121,7 @@ public enum ErrorCode {
     PROFILE_IMAGE_UPLOAD_FAILED(400, "M007", "Profile Image upload failed"),
     LOGIN_TYPE_NOT_FOUND(400, "M008", "Login Type Not Found"),
     DUPLICATED_NICKNAME(409, "M009", "Nickname is duplicated."),
+    NOT_ALLOWED_PASSWORD(409, "M009", "This password is not allowed."),
 
 
     // COMENT

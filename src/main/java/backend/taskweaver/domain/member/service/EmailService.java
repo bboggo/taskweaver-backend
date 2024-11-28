@@ -28,11 +28,11 @@ import java.util.Random;
 public class EmailService {
     private final JavaMailSender emailSender;
     private final SpringTemplateEngine templateEngine;
-    private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     public EmailResponse sendMail(EmailRequest emailRequest) {
         try {
-            if (memberService.checkDuplication(emailRequest.email())) {
+            if (checkDuplication(emailRequest.email())) {
                 MimeMessage mimeMessage = emailSender.createMimeMessage();
                 String certificationNum = generateCertificationNum();
                 Context context = new Context();
@@ -61,6 +61,31 @@ public class EmailService {
         }
     }
 
+    public EmailResponse sendMailForPassword(EmailRequest emailRequest, String tempPassword) {
+        try {
+            MimeMessage mimeMessage = emailSender.createMimeMessage();
+            Context context = new Context();
+            context.setVariable("tempPassword", tempPassword);
+            String message = templateEngine.process("sendEmailForPassword", context);
+
+            EmailMessage emailMessage = EmailMessage.builder()
+                    .to(emailRequest.email())//보내줘야할 사람
+                    //TODO: 여기 제목 채우기
+                    .subject("[Task Weaver] 임시 비밀번호 발급")
+                    .message(message)
+                    .build();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            mimeMessageHelper.setTo(emailMessage.getTo()); // 메일 수신자
+            mimeMessageHelper.setSubject(emailMessage.getSubject()); // 메일 제목
+            mimeMessageHelper.setText(emailMessage.getMessage(), true); // 메일 본문 내용, HTML 여부
+            emailSender.send(mimeMessage);
+            return new EmailResponse(emailRequest.email(), tempPassword);
+
+        } catch (MessagingException e) {
+            throw new BusinessExceptionHandler(ErrorCode.EMAIL_ERROR);
+        }
+    }
+
     public String generateCertificationNum() {
         Random random = new Random();
         StringBuilder sb = new StringBuilder();
@@ -70,6 +95,13 @@ public class EmailService {
         }
 
         return sb.toString();
+    }
+
+    public boolean checkDuplication(String email) {
+        if (memberRepository.findByEmail(email).isPresent()) {
+            throw new BusinessExceptionHandler(ErrorCode.DUPLICATED_EMAIL);
+        }
+        return true;
     }
 
 }

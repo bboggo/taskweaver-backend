@@ -53,7 +53,9 @@ public class SignService {
     @Transactional
     public SignUpResponse registerMember(SignUpRequest request, MultipartFile profileImage) {
         String imageUrl;
-
+        if (request.password().startsWith("TEMP-")) {
+            throw new BusinessExceptionHandler(ErrorCode.NOT_ALLOWED_PASSWORD);
+        }
         try {
             // 이미지 파일이 비어 있는지 확인
             if (profileImage == null || profileImage.isEmpty()) {
