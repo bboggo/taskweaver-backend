@@ -112,7 +112,7 @@ public enum ErrorCode {
     TASK_MEMBER_NOT_FOUND(404, "TS003", "Task Member Not Found"),
 
     // MEMBER
-    DUPLICATED_EMAIL(409, "M001", "Email is duplicated"),
+    DUPLICATED_EMAIL(400, "M001", "Email is duplicated"),
     MEMBER_NOT_FOUND(404, "M002", "Member Not Found"),
     PASSWORD_NOT_MATCH(403, "M003", "Password doesn't match"),
     SAME_PASSWORD(400, "M004", "New password cannot be the same as the current password."),
@@ -120,8 +120,8 @@ public enum ErrorCode {
     CANNOT_WITHDRAW_PROJECT_LEADER(400, "M006", "You cannot withdraw because you are the project leader."),
     PROFILE_IMAGE_UPLOAD_FAILED(400, "M007", "Profile Image upload failed"),
     LOGIN_TYPE_NOT_FOUND(400, "M008", "Login Type Not Found"),
-    DUPLICATED_NICKNAME(409, "M009", "Nickname is duplicated."),
-    NOT_ALLOWED_PASSWORD(409, "M009", "This password is not allowed."),
+    DUPLICATED_NICKNAME(400, "M009", "Nickname is duplicated."),
+    NOT_ALLOWED_PASSWORD(401, "M0010", "This password is not allowed."),
 
 
     // COMENT
