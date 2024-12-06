@@ -45,5 +45,17 @@ public class NotificationResponse {
         LocalDateTime createdAt;
     }
 
-    
+
+    @Builder
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BasicNotificationInfo {
+        @Schema(description = "멤버 id", example = "5")
+        private Long memberId;
+
+        @Schema(description = "조회 여부", example = "YES")
+        private String isRead;
+
+    }
 }

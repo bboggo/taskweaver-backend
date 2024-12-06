@@ -1,6 +1,7 @@
 package backend.taskweaver.domain.notification.repository;
 
 import backend.taskweaver.domain.notification.entity.Notification;
+import backend.taskweaver.domain.notification.entity.enums.isRead;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     List<Notification> findAllByMemberId(@Param("memberId") Long memberId);
 
     List<Notification> findByCreatedAtBefore(LocalDateTime cutoffDate);
+
 }

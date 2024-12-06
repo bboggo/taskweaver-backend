@@ -9,6 +9,7 @@ import backend.taskweaver.domain.notification.repository.NotificationMemberRepos
 import backend.taskweaver.domain.notification.repository.NotificationRepository;
 import backend.taskweaver.domain.team.repository.TeamRepository;
 import backend.taskweaver.global.converter.NotificationConverter;
+import com.sun.nio.sctp.NotificationHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,5 +53,12 @@ public class NotificationServiceImpl implements NotificationService{
     public void deleteOldNotifications(LocalDateTime cutoffDate) {
         List<Notification> oldNotifications = notificationRepository.findByCreatedAtBefore(cutoffDate);
         notificationRepository.deleteAll(oldNotifications);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean hasUnreadNotifications(Long memberId) {
+        return notificationMemberRepository.existsByMember_IdAndIsRead(memberId, isRead.NO);
     }
 }
