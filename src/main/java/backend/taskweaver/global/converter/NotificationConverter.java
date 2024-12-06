@@ -39,4 +39,17 @@ public class NotificationConverter {
         );
     }
 
+    public static NotificationResponse.BasicNotificationInfo toBasicNotificationResponse(
+            Notification notification,
+            NotificationMember notificationMember) {
+
+        return NotificationResponse.BasicNotificationInfo.builder()
+                .isRead(notificationMember.getIsRead().name())
+                .memberId(notificationMember.getMember().getId())
+                .build();
+    }
+
+
+
+
 }
