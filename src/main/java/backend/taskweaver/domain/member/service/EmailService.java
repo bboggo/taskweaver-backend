@@ -53,7 +53,7 @@ public class EmailService {
                 return new EmailResponse(emailRequest.email(), certificationNum);
             }
             else {
-                throw new BusinessExceptionHandler(ErrorCode.EMAIL_ERROR);
+                throw new BusinessExceptionHandler(ErrorCode.DUPLICATED_EMAIL);
             }
 
         } catch (MessagingException e) {
