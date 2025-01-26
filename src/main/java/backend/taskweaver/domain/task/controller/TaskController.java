@@ -1,6 +1,7 @@
 package backend.taskweaver.domain.task.controller;
 
 import backend.taskweaver.domain.task.dto.TaskRequest;
+import backend.taskweaver.domain.task.dto.TaskResponse;
 import backend.taskweaver.domain.task.service.TaskService;
 import backend.taskweaver.global.code.ApiResponse;
 import backend.taskweaver.global.code.SuccessCode;
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequestMapping("/v1")
@@ -29,22 +31,35 @@ public class TaskController {
 
     @Operation(summary = "태스크 생성")
     @PostMapping("/projects/{projectId}/tasks")
-    public ResponseEntity<ApiResponse> createTask(@RequestPart("request") TaskRequest.taskCreate request,
-                                                  @RequestPart("images") List<MultipartFile> multipartFiles,
-                                                  @AuthenticationPrincipal User user, @PathVariable Long projectId) {
+    public ResponseEntity<ApiResponse> createTask(
+            @RequestPart("request") TaskRequest.taskCreate request,
+            @RequestPart(value = "images", required = false) List<MultipartFile> multipartFiles,
+            @AuthenticationPrincipal User user,
+            @PathVariable Long projectId
+    ) {
         try {
-            ApiResponse ar = ApiResponse.builder()
-                    .result(taskService.createTask(request, multipartFiles, Long.parseLong(user.getUsername()), projectId))
+            // Null 체크 및 기본 값 설정
+            List<MultipartFile> files = (multipartFiles != null) ? multipartFiles : new ArrayList<>();
+
+            // Task 생성 서비스 호출
+            TaskResponse.taskCreateOrUpdateResult result = taskService.createTask(
+                    request, files, Long.parseLong(user.getUsername()), projectId
+            );
+
+            // 성공 응답 생성
+            ApiResponse response = ApiResponse.builder()
+                    .result(result)
                     .resultCode(SuccessCode.INSERT_SUCCESS.getStatus())
                     .resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
                     .build();
-            return new ResponseEntity<>(ar, HttpStatus.OK);
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            // 예외 처리
+            throw new RuntimeException("태스크 생성 중 오류가 발생했습니다.", e);
         }
-
-
     }
+
 
     @Operation(summary = "태스크 삭제")
     @DeleteMapping("/task/{taskId}")

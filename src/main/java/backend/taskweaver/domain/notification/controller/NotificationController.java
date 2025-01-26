@@ -38,7 +38,7 @@ public class NotificationController {
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 
-    @GetMapping("/has-unread")
+    @GetMapping("/notification/read")
     @Operation(summary = "유저의 읽지 않은 알림 존재 여부 확인")
     public ResponseEntity<ApiResponse> checkUnreadNotifications(@AuthenticationPrincipal User user) {
         Long memberId = Long.parseLong(user.getUsername());
