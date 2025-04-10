@@ -4,7 +4,9 @@ import backend.taskweaver.domain.team.dto.TeamInviteRequest;
 import backend.taskweaver.domain.team.dto.TeamLeaderRequest;
 import backend.taskweaver.domain.team.dto.TeamLeaderResponse;
 import backend.taskweaver.domain.team.dto.TeamRequest;
+import backend.taskweaver.domain.team.service.TeamInviteService;
 import backend.taskweaver.domain.team.service.TeamService;
+import backend.taskweaver.domain.team.service.TeamServiceImpl;
 import backend.taskweaver.global.code.ApiResponse;
 import backend.taskweaver.global.code.SuccessCode;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 public class TeamController {
 
     private final TeamService teamService;
+    private final TeamInviteService teamInviteService;
 
     @Operation(summary = "팀 생성")
     @PostMapping("/team")
@@ -149,7 +152,7 @@ public class TeamController {
     @PostMapping("/team/invitation/email")
     public ResponseEntity<ApiResponse> inviteEmail(@RequestBody TeamInviteRequest.EmailInviteRequest request) {
         ApiResponse apiResponse = ApiResponse.builder()
-                .result(teamService.inviteEmail(request))
+                .result(teamInviteService.inviteEmail(request))
                 .resultCode(SuccessCode.INSERT_SUCCESS.getStatus())
                 .resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
                 .build();
@@ -160,7 +163,7 @@ public class TeamController {
     @PostMapping("/team/invitation/answer")
     public ResponseEntity<ApiResponse> answerInviteEmail(@RequestBody TeamInviteRequest.InviteAnswerRequest request, @AuthenticationPrincipal User user) {
         ApiResponse apiResponse = ApiResponse.builder()
-                .result(teamService.answerInvite(request, Long.parseLong(user.getUsername())))
+                .result(teamInviteService.answerInvite(request, Long.parseLong(user.getUsername())))
                 .resultCode(SuccessCode.INSERT_SUCCESS.getStatus())
                 .resultMsg(SuccessCode.INSERT_SUCCESS.getMessage())
                 .build();

@@ -13,9 +13,6 @@ public interface TeamService {
     public TeamResponse.findTeamResult findTeam(Long id, Long userId);
 
     public List<TeamResponse.AllTeamInfo> findTeamsByUserId(Long userId);
-    public TeamInviteRequest.EmailInviteRequest inviteEmail(TeamInviteRequest.EmailInviteRequest request);
-
-    public TeamInviteResponse.InviteAnswerResult answerInvite(TeamInviteRequest.InviteAnswerRequest request, Long user);
 
     public void deleteTeamMembers(Long teamId, List<Long> memberIds, Long user);
     public TeamResponse.TeamDeleteResult deleteTeam(Long teamId, Long user);
